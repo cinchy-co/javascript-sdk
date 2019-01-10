@@ -16756,9 +16756,9 @@ function CinchyJS(_options) {
             redirect_uri: redirecturi,
             post_logout_redirect_uri: redirecturi,
             response_type: "id_token token",
-            scope: "openid profile roles id adonet_api",
-            //silent_redirect_uri: _options.silent_redirect_uri,
-            //automaticSilentRenew: true,
+            scope: _options.scope ? "js_api " + _options.scope : "openid id js_api",
+            silent_redirect_uri: _options.silent_redirect_uri,
+            automaticSilentRenew: _options.silent_refresh_enabled ? _options.silent_refresh_enabled : false,
             // will raise events for when user has performed a logout at IdentityServer
             monitorSession: true,
             // this will allow all the OIDC protocol claims to vbe visible in the window. normally a client app 
@@ -17263,10 +17263,10 @@ function CinchyJS(_options) {
         var form_data = null;
         if (isNonNullObject(params)) {
             form_data = getFormUrlEncodedData(params);
-        }
+				}
         var beforeSendFn = function (xhr) {
             if (_usr && _usr.access_token) {
-                xhr.setRequestHeader('Authorization', 'Bearer ' + _usr.access_token);
+								xhr.setRequestHeader('Authorization', 'Bearer ' + _usr.access_token);
             }
         };
         var successFn = function (data) {
@@ -17274,7 +17274,7 @@ function CinchyJS(_options) {
             if (isFunction(successCallback))
                 successCallback(jsonQueryResult, callbackState);
             if (isNonNullObject(completionMonitor) && isFunction(completionMonitor.incrementCompleted))
-                completionMonitor.incrementCompleted();
+								completionMonitor.incrementCompleted();
         };
         var errorFn = function (error) {
             var cinchyEx = new CinchyException(errorMsg, {
@@ -17314,7 +17314,7 @@ function CinchyJS(_options) {
                 success: successFn,
                 error: errorFn
             });
-        }
+				}
     }
 
     function executeMultipleJsonSavedQueries(savedQueryParams, callback, callbackState) {
@@ -17340,7 +17340,7 @@ function CinchyJS(_options) {
     }
 
     function getGroupsCurrentUserBelongsTo() {
-        var apiUrl = _options.cinchyRootUrl + '/Account/GetGroupsCurrentUserBelongsTo';
+				var apiUrl = _options.cinchyRootUrl + '/Account/GetGroupsCurrentUserBelongsTo';
         return $.ajax({
             url: apiUrl,
             type: 'GET',
