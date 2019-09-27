@@ -17378,6 +17378,76 @@ function CinchyJS(_options) {
         });
     }
 
+		function getUserPreferences(successCallback, errorCallback, callbackState) {
+			var userPrefs = {};
+			var query = `SELECT u.[Username] as 'username', u.[Name] as 'name', u.[Display Name] as 'displayName',
+				u.[Email Address] as 'emailAddress', u.[Profile Photo] as 'profilePhoto',
+				l.[Language].[Subtag] as 'language', l.[Region].[Subtag] as 'region' 
+				FROM [Cinchy].[Users] u
+				LEFT JOIN [Cinchy].[Language User Link Table] l 
+								ON l.[User].[Cinchy Id] = u.[Cinchy Id]
+				WHERE u.[Cinchy Id] = CurrentUserID();`;
+			executeJsonQuery(query, null, function (response) {
+				response.moveToNextRow();
+				userPrefs.username = response.getCellValue('username');
+				userPrefs.displayName = response.getCellValue('displayName');
+				userPrefs.emailAddress = response.getCellValue('emailAddress');
+				userPrefs.profilePhoto = response.getCellValue('profilePhoto');
+				userPrefs.language = response.getCellValue('language');
+				userPrefs.region = response.getCellValue('region');
+				if (isFunction(successCallback))
+					successCallback(userPrefs, callbackState);
+			}, function (error) {
+				if (isFunction(errorCallback))
+					errorCallback(error);   
+			});
+		}
+
+	function getTranslatedLiterals(guids, debug, successCallback, errorCallback, callbackState) {
+			getUserPreferences(function (userPreferences) {
+				var form_data = getFormUrlEncodedData({
+					'guids': guids, 
+					'language': userPreferences.language,
+					'region': userPreferences.region,
+					'debug': debug
+				});
+				var errorMsg = 'Failed to retrieve translated literals.';
+				var beforeSendFn = function (xhr) {
+					if (_usr && _usr.access_token) {
+						xhr.setRequestHeader('Authorization', 'Bearer ' + _usr.access_token);
+					}
+				};
+				var successFn = function (data) {
+					var jsonObj = JSON.parse(data);
+					if (isFunction(successCallback))
+						successCallback(jsonObj, callbackState);
+				};
+				var errorFn = function (error) {
+					var cinchyEx = new CinchyException(errorMsg, {
+						status: error.status,
+						statusText: error.statusText,
+						response: error.responseJSON
+					});
+					if (isFunction(errorCallback))
+						errorCallback(cinchyEx, callbackState);
+					else
+						throw cinchyEx;
+				};
+				$.ajax({
+					url: _options.cinchyRootUrl + '/API/Translate',
+					type: 'POST',
+					data: form_data,
+					dataType: 'text',
+					beforeSend: beforeSendFn,
+					success: successFn,
+					error: errorFn
+				});
+		}, function(error) {
+			if (isFunction(errorCallback))
+				errorCallback(error);
+		});
+	}
+
     init();
 
     return {
@@ -17409,7 +17479,9 @@ function CinchyJS(_options) {
         closeConnection: closeConnection,
         beginTransaction: beginTransaction,
         commitTransaction: commitTransaction,
-        rollbackTransaction: rollbackTransaction
+				rollbackTransaction: rollbackTransaction,
+				getUserPreferences: getUserPreferences,
+        getTranslatedLiterals: getTranslatedLiterals
     };
 
     function JsonQueryResult(_jsonResult) {
