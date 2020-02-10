@@ -12,6 +12,10 @@ Example:
 Please use v2.x.x of the library if you are using Cinchy v2.x.x and higher,
 otherwise, use v1.x.x.
 
+Please use version 4.0.0 if you are using any Cinchy versions from **Cinchy v4.0.0 to Cinchy v4.5.x**.
+
+Please use version 4.1.0 if you are using Cinchy versions **Cinchy v4.6.0 and up**.
+
 ## Configure
 
 To connect to Cinchy, you must configure the window's cinchyJS object in your javascript code:
