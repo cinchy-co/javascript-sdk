@@ -17382,9 +17382,9 @@ function CinchyJS(_options) {
 			var userPrefs = {};
 			var query = `SELECT u.[Username] as 'username', u.[Name] as 'name', u.[Display Name] as 'displayName',
 				u.[Email Address] as 'emailAddress', u.[Profile Photo] as 'profilePhoto',
-				l.[Language].[Subtag] as 'language', l.[Region].[Subtag] as 'region' 
+				l.[Language].[Subtag] as 'language', l.[Region].[Subtag] as 'region', l.[Time Zone] as 'timeZone' 
 				FROM [Cinchy].[Users] u
-				LEFT JOIN [Cinchy].[Language User Link Table] l 
+				LEFT JOIN [Cinchy].[User Preferences] l 
 								ON l.[User].[Cinchy Id] = u.[Cinchy Id]
 				WHERE u.[Cinchy Id] = CurrentUserID();`;
 			executeJsonQuery(query, null, function (response) {
@@ -17395,6 +17395,7 @@ function CinchyJS(_options) {
 				userPrefs.profilePhoto = response.getCellValue('profilePhoto');
 				userPrefs.language = response.getCellValue('language');
 				userPrefs.region = response.getCellValue('region');
+				userPrefs.timeZone = response.getCellValue('timeZone');
 				if (isFunction(successCallback))
 					successCallback(userPrefs, callbackState);
 			}, function (error) {
