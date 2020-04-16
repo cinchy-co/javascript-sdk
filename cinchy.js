@@ -16826,19 +16826,30 @@ function CinchyJS(_options) {
             console.error("Error clearing state:", e.message);
         });
 
-        // checks to see if we already have a logged in user
-        //_mgr.getUser().then(function (user) {
-        //    _usr = user;
-        //    signInOrCallback();
-        //}).catch(function (e) {
-        //    console.error(e);
-        //});
+        // Checks to see if we already have a logged in user
+        _mgr.getUser().then(function (user) {
+					// If there is a user and the user has not expired, load the user callback because they are still logged in.
+					if (user != undefined && user != null && !user.expired && isFunction(_options.user_loaded_callback)) {
+						 _usr = user;
+						 _options.user_loaded_callback(user);
+					} else {
+							// Otherwise (there is no user or the user's token has expired), remove the user and try to login.
+						 _mgr.removeUser().then(function () {
+								 signInOrCallback();
+						 }).catch(function (ex) {
+								 console.error(ex);
+						 });
+					}
+				}).catch(function (e) {
+						console.error(e);
+				});
+
         // TODO: temporay hack which forces every load to cause a login
-        _mgr.removeUser().then(function () {
-            signInOrCallback();
-        }).catch(function (ex) {
-            console.error(ex);
-        });
+        // _mgr.removeUser().then(function () {
+        //     signInOrCallback();
+        // }).catch(function (ex) {
+        //     console.error(ex);
+				// });
     }
 
     ///////////////////////////////
