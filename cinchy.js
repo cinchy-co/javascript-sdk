@@ -9,7 +9,6 @@
  * Contributor: Ian Caunce - ian@hallnet.co.uk
  */
 
-
 ;(function(window, undefined) {
 	'use strict';
 
@@ -17301,7 +17300,7 @@ function CinchyJS(_options) {
                 type: 'POST',
                 data: form_data,
                 dataType: 'json',
-                beforeSend: beforeSendFn,
+	            beforeSend: beforeSendFn,
                 success: successFn,
                 error: errorFn
             });
@@ -17310,7 +17309,7 @@ function CinchyJS(_options) {
                 url: apiUrl,
                 type: 'POST',
                 dataType: 'json',
-                beforeSend: beforeSendFn,
+		        beforeSend: beforeSendFn,
                 success: successFn,
                 error: errorFn
             });
@@ -17340,42 +17339,66 @@ function CinchyJS(_options) {
     }
 
     function getGroupsCurrentUserBelongsTo() {
-				var apiUrl = _options.cinchyRootUrl + '/Account/GetGroupsCurrentUserBelongsTo';
+		var beforeSendFn = function (xhr) {
+			if (_usr && _usr.access_token) {
+				xhr.setRequestHeader('Authorization', 'Bearer ' + _usr.access_token);
+			}
+		};
+		var apiUrl = _options.cinchyRootUrl + '/Account/GetGroupsCurrentUserBelongsTo';
         return $.ajax({
             url: apiUrl,
             type: 'GET',
-            dataType: 'json'
+            dataType: 'json',
+			beforeSend: beforeSendFn
         });
     }
 
     function getTableEntitlementsById(tableId) {
+		var beforeSendFn = function (xhr) {
+			if (_usr && _usr.access_token) {
+				xhr.setRequestHeader('Authorization', 'Bearer ' + _usr.access_token);
+			}
+		};
         var apiUrl = _options.cinchyRootUrl + '/Account/GetTableEntitlementsById';
         return $.ajax({
             url: apiUrl,
             type: 'POST',
             data: { "tableId": tableId },
-            dataType: 'json'
+            dataType: 'json',
+			beforeSend: beforeSendFn
         });
     }
 
     function getTableEntitlementsByGuid(tableGuid) {
+		var beforeSendFn = function (xhr) {
+			if (_usr && _usr.access_token) {
+				xhr.setRequestHeader('Authorization', 'Bearer ' + _usr.access_token);
+			}
+		};
         var apiUrl = _options.cinchyRootUrl + '/Account/GetTableEntitlementsByGuid';
         return $.ajax({
             url: apiUrl,
             type: 'POST',
             data: { "tableGuid": tableGuid },
-            dataType: 'json'
+            dataType: 'json',
+			beforeSend: beforeSendFn
         });
     }
 
     function getTableEntitlementsByName(domainName, tableName) {
+		var beforeSendFn = function (xhr) {
+			if (_usr && _usr.access_token) {
+				xhr.setRequestHeader('Authorization', 'Bearer ' + _usr.access_token);
+			}
+		};
         var apiUrl = _options.cinchyRootUrl + '/Account/GetTableEntitlementsByName';
         return $.ajax({
             url: apiUrl,
             type: 'POST',
             data: { "domainName": domainName, "tableName": tableName },
-            dataType: 'json'
-        });
+            dataType: 'json',
+			beforeSend: beforeSendFn
+	    });
     }
 
 		function getUserPreferences(successCallback, errorCallback, callbackState) {
