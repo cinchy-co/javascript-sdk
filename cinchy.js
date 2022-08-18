@@ -9,7 +9,6 @@
  * Contributor: Ian Caunce - ian@hallnet.co.uk
  */
 
-
 ;(function(window, undefined) {
 	'use strict';
 
@@ -17083,11 +17082,6 @@ function CinchyJS(_options) {
 
     function openConnection(successCallback, errorCallback, callbackState) {
         var errorMsg = 'Failed to open connection';
-        var beforeSendFn = function (xhr) {
-            if (_usr && _usr.access_token) {
-                xhr.setRequestHeader('Authorization', 'Bearer ' + _usr.access_token);
-            }
-        };
         var successFn = function (data) {
             var connectionId = data;
             if (isFunction(successCallback))
@@ -17108,7 +17102,7 @@ function CinchyJS(_options) {
             url: _options.cinchyRootUrl + '/API/OpenConnection',
             type: 'GET',
             dataType: 'text',
-            beforeSend: beforeSendFn,
+            beforeSend: setAuthorizationHeader(),
             success: successFn,
             error: errorFn
         });
@@ -17119,11 +17113,7 @@ function CinchyJS(_options) {
             return;
         var errorMsg = 'Failed to close connection ' + connectionId;
         var form_data = getFormUrlEncodedData({ "connectionId": connectionId });
-        var beforeSendFn = function (xhr) {
-            if (_usr && _usr.access_token) {
-                xhr.setRequestHeader('Authorization', 'Bearer ' + _usr.access_token);
-            }
-        };
+
         var successFn = function (data) {
             if (isFunction(successCallback))
                 successCallback(connectionId, callbackState);
@@ -17144,7 +17134,7 @@ function CinchyJS(_options) {
             type: 'POST',
             data: form_data,
             dataType: 'text',
-            beforeSend: beforeSendFn,
+            beforeSend: setAuthorizationHeader(),
             success: successFn,
             error: errorFn
         });
@@ -17155,11 +17145,7 @@ function CinchyJS(_options) {
             return null;
         var errorMsg = 'Failed to begin transaction on connection ' + connectionId;
         var form_data = getFormUrlEncodedData({ "connectionId": connectionId });
-        var beforeSendFn = function (xhr) {
-            if (_usr && _usr.access_token) {
-                xhr.setRequestHeader('Authorization', 'Bearer ' + _usr.access_token);
-            }
-        };
+
         var successFn = function (data) {
             var transactionId = data;
             if (isFunction(successCallback))
@@ -17181,7 +17167,7 @@ function CinchyJS(_options) {
             type: 'POST',
             data: form_data,
             dataType: 'text',
-            beforeSend: beforeSendFn,
+            beforeSend: setAuthorizationHeader(),
             success: successFn,
             error: errorFn
         });
@@ -17192,11 +17178,7 @@ function CinchyJS(_options) {
             return null;
         var errorMsg = 'Failed to commit transaction ' + transactionId + ' on connection ' + connectionId;
         var form_data = getFormUrlEncodedData({ "connectionId": connectionId, "transactionId": transactionId });
-        var beforeSendFn = function (xhr) {
-            if (_usr && _usr.access_token) {
-                xhr.setRequestHeader('Authorization', 'Bearer ' + _usr.access_token);
-            }
-        };
+
         var successFn = function (data) {
             if (isFunction(successCallback))
                 successCallback(connectionId, transactionId, callbackState);
@@ -17217,7 +17199,7 @@ function CinchyJS(_options) {
             type: 'POST',
             data: form_data,
             dataType: 'text',
-            beforeSend: beforeSendFn,
+            beforeSend: setAuthorizationHeader(),
             success: successFn,
             error: errorFn
         });
@@ -17228,11 +17210,7 @@ function CinchyJS(_options) {
             return null;
         var errorMsg = 'Failed to rollback transaction ' + transactionId + ' on connection ' + connectionId;
         var form_data = getFormUrlEncodedData({ "connectionId": connectionId, "transactionId": transactionId });
-        var beforeSendFn = function (xhr) {
-            if (_usr && _usr.access_token) {
-                xhr.setRequestHeader('Authorization', 'Bearer ' + _usr.access_token);
-            }
-        };
+
         var successFn = function (data) {
             if (isFunction(successCallback))
                 successCallback(connectionId, transactionId, callbackState);
@@ -17253,7 +17231,7 @@ function CinchyJS(_options) {
             type: 'POST',
             data: form_data,
             dataType: 'text',
-            beforeSend: beforeSendFn,
+            beforeSend: setAuthorizationHeader(),
             success: successFn,
             error: errorFn
         });
@@ -17264,11 +17242,7 @@ function CinchyJS(_options) {
         if (isNonNullObject(params)) {
             form_data = getFormUrlEncodedData(params);
 				}
-        var beforeSendFn = function (xhr) {
-            if (_usr && _usr.access_token) {
-								xhr.setRequestHeader('Authorization', 'Bearer ' + _usr.access_token);
-            }
-        };
+
         var successFn = function (data) {
             var jsonQueryResult = new JsonQueryResult(data);
             if (isFunction(successCallback))
@@ -17301,7 +17275,7 @@ function CinchyJS(_options) {
                 type: 'POST',
                 data: form_data,
                 dataType: 'json',
-                beforeSend: beforeSendFn,
+	            beforeSend: setAuthorizationHeader(),
                 success: successFn,
                 error: errorFn
             });
@@ -17310,7 +17284,7 @@ function CinchyJS(_options) {
                 url: apiUrl,
                 type: 'POST',
                 dataType: 'json',
-                beforeSend: beforeSendFn,
+		        beforeSend: setAuthorizationHeader(),
                 success: successFn,
                 error: errorFn
             });
@@ -17338,13 +17312,22 @@ function CinchyJS(_options) {
         if (!isNonNullOrWhitespaceString(_options.client_id))
             throw new CinchyException('options.client_id is a mandatory field');
     }
-
+    function setAuthorizationHeader(){
+		var beforeSendFn = function (xhr) {
+			if (_usr && _usr.access_token) {
+				xhr.setRequestHeader('Authorization', 'Bearer ' + _usr.access_token);
+			}
+		};
+		return beforeSendFn;
+	}
     function getGroupsCurrentUserBelongsTo() {
-				var apiUrl = _options.cinchyRootUrl + '/Account/GetGroupsCurrentUserBelongsTo';
+		
+		var apiUrl = _options.cinchyRootUrl + '/Account/GetGroupsCurrentUserBelongsTo';
         return $.ajax({
             url: apiUrl,
             type: 'GET',
-            dataType: 'json'
+            dataType: 'json',
+			beforeSend: setAuthorizationHeader()
         });
     }
 
@@ -17354,7 +17337,8 @@ function CinchyJS(_options) {
             url: apiUrl,
             type: 'POST',
             data: { "tableId": tableId },
-            dataType: 'json'
+            dataType: 'json',
+			beforeSend: setAuthorizationHeader()
         });
     }
 
@@ -17364,7 +17348,8 @@ function CinchyJS(_options) {
             url: apiUrl,
             type: 'POST',
             data: { "tableGuid": tableGuid },
-            dataType: 'json'
+            dataType: 'json',
+			beforeSend: setAuthorizationHeader()
         });
     }
 
@@ -17374,8 +17359,9 @@ function CinchyJS(_options) {
             url: apiUrl,
             type: 'POST',
             data: { "domainName": domainName, "tableName": tableName },
-            dataType: 'json'
-        });
+            dataType: 'json',
+			beforeSend: setAuthorizationHeader()
+	    });
     }
 
 		function getUserPreferences(successCallback, errorCallback, callbackState) {
@@ -17413,11 +17399,7 @@ function CinchyJS(_options) {
 					'debug': debug
 				});
 				var errorMsg = 'Failed to retrieve translated literals.';
-				var beforeSendFn = function (xhr) {
-					if (_usr && _usr.access_token) {
-						xhr.setRequestHeader('Authorization', 'Bearer ' + _usr.access_token);
-					}
-				};
+
 				var successFn = function (data) {
 					var jsonObj = JSON.parse(data);
 					if (isFunction(successCallback))
@@ -17439,7 +17421,7 @@ function CinchyJS(_options) {
 					type: 'POST',
 					data: form_data,
 					dataType: 'text',
-					beforeSend: beforeSendFn,
+					beforeSend: setAuthorizationHeader(),
 					success: successFn,
 					error: errorFn
 				});
